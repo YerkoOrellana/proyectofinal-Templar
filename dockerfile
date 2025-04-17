@@ -11,3 +11,4 @@ RUN npm run build --force
 CMD ["npm", "start"]
 
 
+# okri yerko comiste jaja
