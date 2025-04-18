@@ -1,87 +1,132 @@
 "use client"
 
+import type React from "react"
 import { useState } from "react"
-import Image from "next/image"
-import { useCart } from "@/context/CartContext"
-import type { Product } from "@/types"
+import Link from "next/link"
+import { usePathname, useRouter } from "next/navigation"
+import { ShoppingCart, Search, Menu, X } from "lucide-react"
+import { useCart } from "@/context/CartContext" // Importa el hook useCart
 
-export default function ProductDetail({ product }: { product: Product }) {
-  const [quantity, setQuantity] = useState(1)
-  const { addToCart } = useCart()
+export default function Navbar() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState("")
+  const pathname = usePathname()
+  const router = useRouter() // Usamos router para redirigir
 
-  // Función para manejar la adición al carrito
-  const handleAddToCart = () => {
-    addToCart(product, quantity)
-    // Mostrar notificación o feedback
-    alert(`${quantity} ${product.name} añadido al carrito`)
+  const { totalItems, totalPrice } = useCart() // Accede a totalItems y totalPrice desde el contexto del carrito
+
+  // Función para manejar la búsqueda
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+
+    if (searchQuery.trim()) {
+      // Redirige a la página de resultados con el query
+      router.push(`/productos?search=${searchQuery}`)
+    }
   }
 
+  // Enlaces de navegación
+  const navLinks = [
+    { name: "Productos", href: "/productos" },
+    { name: "Info", href: "/info" },
+    { name: "Login", href: "/login" },
+    { name: "Registrarse", href: "/registro" },
+    { name: "Contacto", href: "/contacto" },
+  ]
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-      {/* Imagen del producto */}
-      <div className="relative h-[500px] w-full">
-        <Image src={product.image || "/assets/jackets/acronym/acronym_landing.jpg"} alt={product.name} fill className="object-cover" />
-      </div>
-
-      {/* Detalles del producto */}
-      <div>
-        <h1 className="text-2xl font-bold">{product.name}</h1>
-        <p className="text-xl mt-2">${product.price.toLocaleString("es-CL")} CLP</p>
-
-        <div className="mt-6">
-          <p className="text-gray-700">{product.description}</p>
-        </div>
-
-        {/* Selector de cantidad */}
-        <div className="mt-8 flex items-center">
-          <label htmlFor="quantity" className="mr-4 text-sm">
-            Cantidad:
-          </label>
-          <div className="flex items-center border border-gray-300">
-            <button
-              type="button"
-              onClick={() => setQuantity((prev) => Math.max(1, prev - 1))}
-              className="px-3 py-1 text-gray-600 hover:bg-gray-100"
-            >
-              -
-            </button>
-            <input
-              id="quantity"
-              type="number"
-              min="1"
-              value={quantity}
-              onChange={(e) => setQuantity(Math.max(1, Number.parseInt(e.target.value) || 1))}
-              className="w-12 text-center border-x border-gray-300 py-1"
+    <header className="border-b border-gray-200">
+      <div className="container mx-auto px-4">
+        {/* Barra superior con logo y carrito */}
+        <div className="flex justify-between items-center py-4">
+          {/* Logo */}
+          <Link href="/" className="flex items-center space-x-2">
+            <img
+              src="/assets/logo/Recurso_22x.png"
+              alt="Templar Logo"
+              className="h-8 w-auto"
             />
-            <button
-              type="button"
-              onClick={() => setQuantity((prev) => prev + 1)}
-              className="px-3 py-1 text-gray-600 hover:bg-gray-100"
-            >
-              +
+          </Link>
+
+          {/* Carrito de compras */}
+          <Link href="/carrito" className="flex items-center">
+            <ShoppingCart className="h-5 w-5 mr-2" />
+            <span className="mr-2">{totalItems}</span> {/* Muestra la cantidad de productos */}
+            <span>|</span>
+            <span className="ml-2">${totalPrice.toLocaleString("es-CL")}</span> {/* Muestra el precio total */}
+          </Link>
+        </div>
+
+        {/* Navegación principal */}
+        <nav className="hidden md:flex justify-between items-center py-4">
+          {/* Enlaces de navegación */}
+          <ul className="flex space-x-8">
+            {navLinks.map((link) => (
+              <li key={link.name}>
+                <Link
+                  href={link.href}
+                  className={`text-sm uppercase tracking-wider ${pathname === link.href ? "font-semibold" : ""}`}
+                >
+                  {link.name}
+                </Link>
+              </li>
+            ))}
+          </ul>
+
+          {/* Buscador */}
+          <form onSubmit={handleSearch} className="relative">
+            <input
+              type="text"
+              placeholder="Buscar"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="py-1 pl-2 pr-8 border-b border-black focus:outline-none text-sm w-40"
+            />
+            <button type="submit" className="absolute right-0 top-1/2 transform -translate-y-1/2">
+              <Search className="h-4 w-4" />
             </button>
+          </form>
+        </nav>
+
+        {/* Menú móvil */}
+        <div className="md:hidden flex justify-between items-center py-4">
+          <button onClick={() => setIsMenuOpen(!isMenuOpen)} aria-label="Toggle menu">
+            {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </button>
+
+          <form onSubmit={handleSearch} className="relative">
+            <input
+              type="text"
+              placeholder="Buscar"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="py-1 pl-2 pr-8 border-b border-black focus:outline-none text-sm w-32"
+            />
+            <button type="submit" className="absolute right-0 top-1/2 transform -translate-y-1/2">
+              <Search className="h-4 w-4" />
+            </button>
+          </form>
+        </div>
+
+        {/* Menú móvil desplegable */}
+        {isMenuOpen && (
+          <div className="md:hidden py-4 border-t border-gray-200">
+            <ul className="space-y-4">
+              {navLinks.map((link) => (
+                <li key={link.name}>
+                  <Link
+                    href={link.href}
+                    className={`block text-sm uppercase tracking-wider ${pathname === link.href ? "font-semibold" : ""}`}
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </div>
-        </div>
-
-        {/* Disponibilidad */}
-        <div className="mt-4">
-          <p className="text-sm">
-            Disponibilidad:
-            <span className={product.stock > 0 ? "text-green-600" : "text-red-600"}>
-              {product.stock > 0 ? ` ${product.stock} en stock` : " Agotado"}
-            </span>
-          </p>
-        </div>
-
-        {/* Botón de añadir al carrito */}
-        <button
-          onClick={handleAddToCart}
-          disabled={product.stock === 0}
-          className="mt-8 w-full bg-black text-white py-3 px-6 hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed"
-        >
-          Añadir al carrito
-        </button>
+        )}
       </div>
-    </div>
+    </header>
   )
 }

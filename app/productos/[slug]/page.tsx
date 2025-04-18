@@ -1,37 +1,41 @@
-import type { Metadata } from "next"
-import { notFound } from "next/navigation"
-import Navbar from "@/components/Navbar"
-import Footer from "@/components/Footer"
-import ProductDetail from "@/components/ProductDetail"
-import RelatedProducts from "@/components/RelatedProducts"
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import ProductDetail from "@/components/ProductDetail";
+import RelatedProducts from "@/components/RelatedProducts";
 
 // Importar datos de ejemplo
-import { allProducts } from "@/data/products"
+import { allProducts } from "@/data/products";
 
-// Generar metadatos dinámicos
+// 🛠️ Función auxiliar para buscar producto o lanzar notFound
+function getProductOrThrow(slug: string): NonNullable<(typeof allProducts)[number]> {
+  const product = allProducts.find((p) => p.slug === slug);
+  if (!product) {
+    notFound(); // Este corta la ejecución (ok en runtime)
+  }
+  return product; // TypeScript ahora entiende que nunca es undefined
+}
+
+// 🛠️ Generar metadatos dinámicos
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const product = allProducts.find((p) => p.slug === params.slug)
+  const product = allProducts.find((p) => p.slug === params.slug);
 
   if (!product) {
     return {
       title: "Producto no encontrado | TEMPLAR",
-    }
+    };
   }
 
   return {
     title: `${product.name} | TEMPLAR`,
     description: product.description,
-  }
+  };
 }
 
+// 🛠️ Componente principal de la página
 export default function ProductPage({ params }: { params: { slug: string } }) {
-  // Buscar el producto por slug
-  const product = allProducts.find((p) => p.slug === params.slug)
-
-  // Si no se encuentra el producto, mostrar 404
-  if (!product) {
-    notFound()
-  }
+  const product = getProductOrThrow(params.slug);
 
   return (
     <main className="min-h-screen bg-white">
@@ -48,5 +52,5 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
 
       <Footer />
     </main>
-  )
+  );
 }
