@@ -71,6 +71,18 @@
       "namedRegex": "^/checkout/confirmacion(?:/)?$"
     },
     {
+      "page": "/contacto",
+      "regex": "^/contacto(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/contacto(?:/)?$"
+    },
+    {
+      "page": "/info",
+      "regex": "^/info(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/info(?:/)?$"
+    },
+    {
       "page": "/login",
       "regex": "^/login(?:/)?$",
       "routeKeys": {},

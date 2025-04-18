@@ -42,7 +42,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
     const savedCart = localStorage.getItem("cart")
     if (savedCart) {
       try {
-        setItems(JSON.parse(savedCart))
+        const parsedCart = JSON.parse(savedCart)
+        if (Array.isArray(parsedCart)) {
+          setItems(parsedCart)
+        } else {
+          console.warn("El carrito guardado no tiene el formato esperado.")
+        }
       } catch (error) {
         console.error("Error al cargar el carrito:", error)
       }

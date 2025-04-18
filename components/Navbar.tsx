@@ -1,16 +1,17 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { ShoppingCart, Search, Menu, X } from "lucide-react"
+import { useCart } from "@/context/CartContext" // Importa el hook useCart
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const pathname = usePathname()
+  const { totalItems, totalPrice } = useCart() // Accede a totalItems y totalPrice desde el contexto del carrito
 
   // Función para manejar la búsqueda
   const handleSearch = (e: React.FormEvent) => {
@@ -35,19 +36,19 @@ export default function Navbar() {
         <div className="flex justify-between items-center py-4">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
-          <img
-            src="/assets/logo/Recurso_22x.png"
-            alt="Templar Logo"
-            className="h-8 w-auto"
-          />
+            <img
+              src="/assets/logo/Recurso_22x.png"
+              alt="Templar Logo"
+              className="h-8 w-auto"
+            />
           </Link>
 
           {/* Carrito de compras */}
           <Link href="/carrito" className="flex items-center">
             <ShoppingCart className="h-5 w-5 mr-2" />
-            <span className="mr-2"></span>
+            <span className="mr-2">{totalItems}</span> {/* Muestra la cantidad de productos */}
             <span>|</span>
-            <span className="ml-2">$ 0 CLP</span>
+            <span className="ml-2">${totalPrice.toLocaleString("es-CL")}</span> {/* Muestra el precio total */}
           </Link>
         </div>
 
@@ -110,9 +111,7 @@ export default function Navbar() {
                 <li key={link.name}>
                   <Link
                     href={link.href}
-                    className={`block text-sm uppercase tracking-wider ${
-                      pathname === link.href ? "font-semibold" : ""
-                    }`}
+                    className={`block text-sm uppercase tracking-wider ${pathname === link.href ? "font-semibold" : ""}`}
                     onClick={() => setIsMenuOpen(false)}
                   >
                     {link.name}
